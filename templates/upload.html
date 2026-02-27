@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload - PlantCare AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo"><span class="logo-icon">🌿</span><span class="logo-text">PlantCare AI</span></div>
+            <ul class="nav-menu">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/upload" class="btn-nav active">Get Started</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="upload-section">
+        <div class="upload-container">
+            <h1>Upload Plant Image</h1>
+            <p>Take or upload a clear photo of the affected plant leaf</p>
+
+            <div class="upload-box" id="uploadBox">
+                <div class="upload-icon">⬆</div>
+                <h3>Drag & Drop Image Here</h3>
+                <p>or click to browse from your device</p>
+                <p class="upload-hint">Supported formats: JPG, JPEG, PNG (Max 16MB)</p>
+                <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.gif" style="display:none">
+                <button class="btn-primary" onclick="document.getElementById('fileInput').click()">Choose Image</button>
+            </div>
+
+            <div id="previewBox" style="display:none; margin-top:20px; text-align:center;">
+                <img id="previewImg" style="max-width:300px; border-radius:12px; margin-bottom:16px;">
+                <br>
+                <button class="btn-primary" id="analyzeBtn" onclick="analyzeImage()">🔍 Analyze Image</button>
+            </div>
+
+            <div id="loadingBox" style="display:none; text-align:center; margin-top:20px;">
+                <div class="spinner"></div>
+                <p>Analyzing your plant image...</p>
+            </div>
+
+            <div class="tips">
+                <h4>💡 Tips for Best Results</h4>
+                <div class="tips-grid">
+                    <span>✅ Take photos in good lighting</span>
+                    <span>✅ Focus on the affected leaf area</span>
+                    <span>✅ Keep the camera steady</span>
+                    <span>✅ Avoid blurry images</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>🌿 PlantCare AI — Empowering agriculture through innovative AI solutions</p>
+    </footer>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadBox = document.getElementById('uploadBox');
+        const previewBox = document.getElementById('previewBox');
+        const previewImg = document.getElementById('previewImg');
+        const loadingBox = document.getElementById('loadingBox');
+
+        fileInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    previewImg.src = e.target.result;
+                    uploadBox.style.display = 'none';
+                    previewBox.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        uploadBox.addEventListener('dragover', (e) => { e.preventDefault(); uploadBox.classList.add('drag-over'); });
+        uploadBox.addEventListener('dragleave', () => uploadBox.classList.remove('drag-over'));
+        uploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadBox.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            if (file) { fileInput.files = e.dataTransfer.files; fileInput.dispatchEvent(new Event('change')); }
+        });
+
+        function analyzeImage() {
+            const file = fileInput.files[0];
+            if (!file) return alert('Please select an image first.');
+            const formData = new FormData();
+            formData.append('file', file);
+            previewBox.style.display = 'none';
+            loadingBox.style.display = 'block';
+            fetch('/predict', { method: 'POST', body: formData })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) window.location.href = '/result';
+                    else { loadingBox.style.display = 'none'; previewBox.style.display = 'block'; alert('Error: ' + data.error); }
+                })
+                .catch(err => { loadingBox.style.display = 'none'; previewBox.style.display = 'block'; alert('An error occurred. Please try again.'); });
+        }
+    </script>
+</body>
+
+</html>

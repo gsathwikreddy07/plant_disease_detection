@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Result - PlantCare AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo"><span class="logo-icon">🌿</span><span class="logo-text">PlantCare AI</span></div>
+            <ul class="nav-menu">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/upload" class="btn-nav">New Analysis</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="result-section">
+        <div class="result-container">
+            <h1>Analysis Complete</h1>
+            <p>Here's what we found</p>
+
+            <div class="result-grid">
+                <div class="result-image-box">
+                    <h3>Uploaded Image</h3>
+                    <img src="{{ url_for('static', filename=image_path) }}" alt="Plant leaf"
+                        style="width:100%; border-radius:12px;">
+                </div>
+
+                <div class="result-info-box {% if prediction.is_healthy %}healthy{% else %}diseased{% endif %}">
+                    <div
+                        class="result-badge {% if prediction.is_healthy %}badge-healthy{% else %}badge-disease{% endif %}">
+                        {% if prediction.is_healthy %}✅ HEALTHY PLANT{% else %}⚠ DISEASE DETECTED{% endif %}
+                    </div>
+
+                    <div class="result-icon">{% if prediction.is_healthy %}✅{% else %}❌{% endif %}</div>
+
+                    <div class="result-details">
+                        <div class="detail-item">
+                            <span class="detail-label">PLANT TYPE</span>
+                            <span class="detail-value">{{ prediction.plant }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">CONDITION</span>
+                            <span
+                                class="detail-value {% if prediction.is_healthy %}text-green{% else %}text-red{% endif %}">{{
+                                prediction.condition }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">CONFIDENCE</span>
+                            <span class="detail-value">{{ prediction.confidence }}%</span>
+                        </div>
+                    </div>
+
+                    <div class="recommendations">
+                        <h4>{% if prediction.is_healthy %}🌱 Keep Your Plant Healthy{% else %}⚕ Recommended Actions{%
+                            endif %}</h4>
+                        <ul>
+                            {% for rec in prediction.recommendations %}
+                            <li>→ {{ rec }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-actions">
+                <a href="/upload" class="btn-primary">⬆ Analyze Another Image</a>
+                <a href="/" class="btn-secondary">🏠 Back to Home</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>🌿 PlantCare AI — Empowering agriculture through innovative AI solutions</p>
+    </footer>
+</body>
+
+</html>
