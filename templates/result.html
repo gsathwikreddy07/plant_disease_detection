@@ -11,7 +11,10 @@
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <div class="nav-logo"><span class="logo-icon">🌿</span><span class="logo-text">PlantCare AI</span></div>
+            <div class="nav-logo">
+                <span class="logo-icon">🌿</span>
+                <span class="logo-text">PlantCare AI</span>
+            </div>
             <ul class="nav-menu">
                 <li><a href="/">Home</a></li>
                 <li><a href="/about">About</a></li>
@@ -35,22 +38,31 @@
                 <div class="result-info-box {% if prediction.is_healthy %}healthy{% else %}diseased{% endif %}">
                     <div
                         class="result-badge {% if prediction.is_healthy %}badge-healthy{% else %}badge-disease{% endif %}">
-                        {% if prediction.is_healthy %}✅ HEALTHY PLANT{% else %}⚠ DISEASE DETECTED{% endif %}
+                        {% if prediction.is_healthy %}
+                        ✅ HEALTHY PLANT
+                        {% else %}
+                        ⚠ DISEASE DETECTED
+                        {% endif %}
                     </div>
 
-                    <div class="result-icon">{% if prediction.is_healthy %}✅{% else %}❌{% endif %}</div>
+                    <div class="result-icon">
+                        {% if prediction.is_healthy %}✅{% else %}❌{% endif %}
+                    </div>
 
                     <div class="result-details">
                         <div class="detail-item">
                             <span class="detail-label">PLANT TYPE</span>
                             <span class="detail-value">{{ prediction.plant }}</span>
                         </div>
+
                         <div class="detail-item">
                             <span class="detail-label">CONDITION</span>
                             <span
-                                class="detail-value {% if prediction.is_healthy %}text-green{% else %}text-red{% endif %}">{{
-                                prediction.condition }}</span>
+                                class="detail-value {% if prediction.is_healthy %}text-green{% else %}text-red{% endif %}">
+                                {{ prediction.condition }}
+                            </span>
                         </div>
+
                         <div class="detail-item">
                             <span class="detail-label">CONFIDENCE</span>
                             <span class="detail-value">{{ prediction.confidence }}%</span>
@@ -58,14 +70,90 @@
                     </div>
 
                     <div class="recommendations">
-                        <h4>{% if prediction.is_healthy %}🌱 Keep Your Plant Healthy{% else %}⚕ Recommended Actions{%
-                            endif %}</h4>
+                        <h4>
+                            {% if prediction.is_healthy %}
+                            🌱 Keep Your Plant Healthy
+                            {% else %}
+                            ⚕ Recommended Actions
+                            {% endif %}
+                        </h4>
                         <ul>
                             {% for rec in prediction.recommendations %}
                             <li>→ {{ rec }}</li>
                             {% endfor %}
                         </ul>
                     </div>
+                </div>
+            </div>
+
+            <!-- Chatbot Section -->
+            <div class="chatbot-section">
+                <div class="chat-header">
+                    <span class="chat-icon">🌿</span>
+                    <div>
+                        <h4>Ask PlantCare AI</h4>
+                        <p>Already knows about your {{ prediction.plant }} — {{ prediction.condition }}</p>
+                    </div>
+                    <button class="chat-toggle" onclick="toggleChat()">
+                        <span id="toggleIcon">▲</span>
+                    </button>
+                </div>
+
+                <div class="chat-body" id="chatBody">
+
+                    <div class="chat-suggestions" id="suggestions">
+                        <p class="suggestion-label">Quick questions:</p>
+                        <div class="suggestion-chips">
+                            <button class="chip" onclick="askSuggestion(this)">
+                                How long does treatment take?
+                            </button>
+                            <button class="chip" onclick="askSuggestion(this)">
+                                Is this contagious to nearby plants?
+                            </button>
+                            <button class="chip" onclick="askSuggestion(this)">
+                                What causes {{ prediction.condition }}?
+                            </button>
+                            <button class="chip" onclick="askSuggestion(this)">
+                                Which fungicide should I use?
+                            </button>
+
+                            {% if not prediction.is_healthy %}
+                            <button class="chip" onclick="askSuggestion(this)">
+                                Can the plant fully recover?
+                            </button>
+                            {% else %}
+                            <button class="chip" onclick="askSuggestion(this)">
+                                How often should I water {{ prediction.plant }}?
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-msg bot-msg">
+                            <span class="msg-icon">🌿</span>
+                            <div class="msg-bubble">
+                                Hi! I've already analyzed your
+                                <strong>{{ prediction.plant }}</strong> plant
+                                and detected
+                                <strong>{{ prediction.condition }}</strong>
+                                {% if not prediction.is_healthy %}
+                                (Severity: {{ prediction.severity }})
+                                {% endif %}.
+                                Ask me anything about this condition!
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-area">
+                        <input type="text" id="chatInput"
+                            placeholder="Ask about {{ prediction.plant }} {{ prediction.condition }}..."
+                            onkeypress="handleKeyPress(event)" autocomplete="off" />
+                        <button class="chat-send-btn" onclick="sendMessage()" id="sendBtn">
+                            ➤
+                        </button>
+                    </div>
+
                 </div>
             </div>
 
@@ -79,6 +167,110 @@
     <footer>
         <p>🌿 PlantCare AI — Empowering agriculture through innovative AI solutions</p>
     </footer>
+
+    <!-- JavaScript -->
+    <script type="application/json" id="prediction-data">
+        {{ prediction | tojson | safe }}
+    </script>
+    <script>
+        const PREDICTION_CONTEXT = JSON.parse(document.getElementById('prediction-data').textContent);
+
+        let chatHistory = [];
+        let chatOpen = true;
+
+        function toggleChat() {
+            const body = document.getElementById('chatBody');
+            const icon = document.getElementById('toggleIcon');
+            chatOpen = !chatOpen;
+            body.style.display = chatOpen ? 'flex' : 'none';
+            icon.textContent = chatOpen ? '▲' : '▼';
+        }
+
+        function askSuggestion(btn) {
+            const text = btn.textContent.trim();
+            document.getElementById('suggestions').style.display = 'none';
+            document.getElementById('chatInput').value = text;
+            sendMessage();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') sendMessage();
+        }
+
+        function appendMessage(role, content) {
+            const container = document.getElementById('chatMessages');
+            const div = document.createElement('div');
+            div.className = `chat-msg ${role === 'user' ? 'user-msg' : 'bot-msg'}`;
+
+            if (role === 'user') {
+                div.innerHTML = `<div class="msg-bubble">${content}</div><span class="msg-icon">👤</span>`;
+            } else {
+                div.innerHTML = `<span class="msg-icon">🌿</span><div class="msg-bubble">${content}</div>`;
+            }
+
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function appendTyping() {
+            const container = document.getElementById('chatMessages');
+            const div = document.createElement('div');
+            div.className = 'chat-msg bot-msg typing-indicator';
+            div.id = 'typingIndicator';
+            div.innerHTML = `<span class="msg-icon">🌿</span>
+                <div class="msg-bubble">
+                    <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                </div>`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function removeTyping() {
+            const el = document.getElementById('typingIndicator');
+            if (el) el.remove();
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const message = input.value.trim();
+            if (!message) return;
+
+            appendMessage('user', message);
+            chatHistory.push({ role: 'user', content: message });
+            input.value = '';
+            sendBtn.disabled = true;
+
+            appendTyping();
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: message,
+                        history: chatHistory,
+                        prediction: PREDICTION_CONTEXT
+                    })
+                });
+
+                const data = await response.json();
+                removeTyping();
+
+                const reply = data.reply || "Sorry, I couldn't get a response.";
+                appendMessage('bot', reply);
+                chatHistory.push({ role: 'bot', content: reply });
+
+            } catch (err) {
+                removeTyping();
+                appendMessage('bot', "Connection error. Please try again.");
+            }
+
+            sendBtn.disabled = false;
+            input.focus();
+        }
+    </script>
+
 </body>
 
 </html>

@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PlantCare AI - Plant Disease Detection</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
   <nav class="navbar">
     <div class="nav-container">
@@ -24,14 +26,16 @@
   <section class="hero">
     <div class="hero-content">
       <h1>AI-Powered<br><span class="highlight">Plant Disease</span><br>Detection</h1>
-      <p>Protect your crops with cutting-edge artificial intelligence. Instant disease identification for healthier plants and better yields.</p>
+      <p>Protect your crops with cutting-edge artificial intelligence. Instant disease identification for healthier
+        plants and better yields.</p>
       <div class="hero-buttons">
         <a href="/upload" class="btn-primary">⬆ Upload Image</a>
         <a href="/about" class="btn-secondary">Learn More</a>
       </div>
     </div>
     <div class="hero-image">
-      <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=500" alt="Plant leaves" style="border-radius:16px; width:100%; max-width:420px;">
+      <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=500" alt="Plant leaves"
+        style="border-radius:16px; width:100%; max-width:420px;">
     </div>
   </section>
 
@@ -63,6 +67,133 @@
     <div class="stat"><span class="stat-num">24/7</span><span class="stat-label">Available</span></div>
   </section>
 
+  <!-- ── Plant Info + Search ─────────────────────────────────────────────── -->
+  <section class="plant-info-section">
+    <h2>🌿 Supported Plants & Diseases</h2>
+    <p class="section-sub">Search and explore plants along with the diseases our AI can detect.</p>
+
+    <div class="search-wrapper">
+      <input type="text" id="plantSearch" placeholder="Search plant or disease...">
+      <button id="clearBtn">✕</button>
+      <span class="search-icon">🔍</span>
+    </div>
+
+    <div class="plant-grid" id="plantGrid">
+
+      <!-- Apple -->
+      <div class="plant-card" data-name="Apple" data-diseases="Apple Scab,Black Rot,Cedar Apple Rust">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Red_Apple.jpg" alt="Apple">
+        <div class="plant-body">
+          <h3>Apple</h3>
+          <div class="scientific">Malus domestica</div>
+          <p>A widely cultivated fruit tree grown in temperate climates. Rich in fiber and vitamin C. Requires
+            well-drained soil and sunlight. Susceptible to fungal infections. Proper pruning improves yield.</p>
+          <div class="disease-label">Detectable Diseases</div>
+          <div class="disease-tags">
+            <span class="disease-tag">Apple Scab</span>
+            <span class="disease-tag">Black Rot</span>
+            <span class="disease-tag">Cedar Apple Rust</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tomato -->
+      <div class="plant-card" data-name="Tomato"
+        data-diseases="Early Blight,Late Blight,Bacterial Spot,Yellow Leaf Curl Virus">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/8/89/Tomato_je.jpg" alt="Tomato">
+        <div class="plant-body">
+          <h3>Tomato</h3>
+          <div class="scientific">Solanum lycopersicum</div>
+          <p>One of the most important vegetable crops. Rich in vitamins A and C. Grows best in warm climates.
+            Vulnerable to fungal and viral diseases. Needs proper pest management.</p>
+          <div class="disease-label">Detectable Diseases</div>
+          <div class="disease-tags">
+            <span class="disease-tag">Early Blight</span>
+            <span class="disease-tag">Late Blight</span>
+            <span class="disease-tag">Bacterial Spot</span>
+            <span class="disease-tag">Yellow Leaf Curl Virus</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grape -->
+      <div class="plant-card" data-name="Grape" data-diseases="Black Rot,Esca,Leaf Blight">
+        <img
+          src="data:image/jpeg;base64,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"
+          alt="Grape">
+        <div class="plant-body">
+          <h3>Grape</h3>
+          <div class="scientific">Vitis vinifera</div>
+          <p>Cultivated for fresh consumption and wine production. Grows in warm sunny climates. Requires pruning
+            and support. High humidity increases disease risk. Proper vineyard care ensures yield.</p>
+          <div class="disease-label">Detectable Diseases</div>
+          <div class="disease-tags">
+            <span class="disease-tag">Black Rot</span>
+            <span class="disease-tag">Esca</span>
+            <span class="disease-tag">Leaf Blight</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Corn -->
+      <div class="plant-card" data-name="Corn" data-diseases="Common Rust,Northern Leaf Blight,Cercospora Leaf Spot">
+        <img
+          src="data:image/jpeg;base64,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"
+          alt="Corn">
+        <div class="plant-body">
+          <h3>Corn / Maize</h3>
+          <div class="scientific">Zea mays</div>
+          <p>A staple crop grown worldwide for food and livestock feed. Requires warm temperatures and adequate
+            rainfall. Grows best in fertile, well-drained soils. Disease outbreaks are common in humid environments.</p>
+          <div class="disease-label">Detectable Diseases</div>
+          <div class="disease-tags">
+            <span class="disease-tag">Common Rust</span>
+            <span class="disease-tag">Northern Leaf Blight</span>
+            <span class="disease-tag">Cercospora Leaf Spot</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Potato -->
+      <div class="plant-card" data-name="Potato" data-diseases="Early Blight,Late Blight">
+        <img
+          src="data:image/jpeg;base64,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"
+          alt="Potato">
+        <div class="plant-body">
+          <h3>Potato</h3>
+          <div class="scientific">Solanum tuberosum</div>
+          <p>A major global food crop rich in carbohydrates. Grows well in cool climates with loose soil. Proper
+            irrigation is essential. Highly susceptible to blight diseases requiring constant monitoring.</p>
+          <div class="disease-label">Detectable Diseases</div>
+          <div class="disease-tags">
+            <span class="disease-tag">Early Blight</span>
+            <span class="disease-tag">Late Blight</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Strawberry -->
+      <div class="plant-card" data-name="Strawberry" data-diseases="Leaf Scorch">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/2/29/PerfectStrawberry.jpg" alt="Strawberry">
+        <div class="plant-body">
+          <h3>Strawberry</h3>
+          <div class="scientific">Fragaria × ananassa</div>
+          <p>A popular fruit known for its sweet taste and bright red color. Grows in moderate climates with
+            well-drained soil. Leaf diseases are common in wet conditions. Proper spacing reduces infection risk.</p>
+          <div class="disease-label">Detectable Diseases</div>
+          <div class="disease-tags">
+            <span class="disease-tag">Leaf Scorch</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <p id="noResults" style="display:none; text-align:center; color:var(--gray); margin-top:40px; font-size:1rem;">
+      🌱 No plants or diseases found matching your search.
+    </p>
+  </section>
+
   <section class="cta">
     <h2>Ready to Protect Your Plants?</h2>
     <p>Start detecting plant diseases now with our AI-powered system</p>
@@ -73,5 +204,62 @@
     <p>🌿 PlantCare AI — Empowering agriculture through innovative AI solutions</p>
     <p>© 2025 PlantCare AI. All rights reserved.</p>
   </footer>
+
+  <!-- JS at bottom so DOM is fully loaded before selectors run -->
+  <script>
+    const searchInput = document.getElementById("plantSearch");
+    const clearBtn = document.getElementById("clearBtn");
+    const plantCards = document.querySelectorAll(".plant-card");
+    const noResults = document.getElementById("noResults");
+
+    // Cache original tag text on load so highlights can be safely reset
+    plantCards.forEach(card => {
+      card.querySelectorAll(".disease-tag").forEach(tag => {
+        tag.dataset.original = tag.textContent;
+      });
+    });
+
+    function highlight(text, keyword) {
+      if (!keyword) return text;
+      const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      return text.replace(new RegExp(`(${escaped})`, "gi"), "<mark>$1</mark>");
+    }
+
+    function filterPlants() {
+      const q = searchInput.value.toLowerCase().trim();
+      let visible = 0;
+
+      plantCards.forEach(card => {
+        const nameMatch = card.dataset.name.toLowerCase().includes(q);
+        const diseaseMatch = card.dataset.diseases.toLowerCase().includes(q);
+
+        if (!q || nameMatch || diseaseMatch) {
+          card.style.display = "flex";
+          visible++;
+          card.querySelector("h3").innerHTML = highlight(card.dataset.name, q);
+          card.querySelectorAll(".disease-tag").forEach(tag => {
+            tag.innerHTML = highlight(tag.dataset.original, q);
+          });
+        } else {
+          card.style.display = "none";
+        }
+      });
+
+      noResults.style.display = visible === 0 ? "block" : "none";
+      clearBtn.style.display = q ? "block" : "none";
+    }
+
+    searchInput.addEventListener("input", filterPlants);
+
+    clearBtn.addEventListener("click", () => {
+      searchInput.value = "";
+      filterPlants();
+      searchInput.focus();
+    });
+
+    // Hide clear button on init
+    clearBtn.style.display = "none";
+  </script>
 </body>
+
 </html>
